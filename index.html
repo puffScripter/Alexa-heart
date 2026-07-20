@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Made With Code For You ❤️</title>
-    <!-- Official p5.js Library CDN - Fixed path to enable the interactive canvas -->
+    <title>Made With Code For Alexa ❤️</title>
+    <!-- Official p5.js Library CDN -->
     <script src="https://cloudflare.com"></script>
     <style>
         body {
@@ -68,6 +68,74 @@
             pointer-events: none;
             user-select: none;
         }
+
+        /* --- STYLISH POP-UP MODAL BOX --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(11, 9, 20, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 999;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-box {
+            background: #151226;
+            border: 2px solid #ff69b4;
+            box-shadow: 0 0 25px rgba(255, 105, 180, 0.4);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 80%;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.show .modal-box {
+            transform: scale(1);
+        }
+        .modal-title {
+            color: #ff69b4;
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+        .modal-message {
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .modal-btn {
+            background: transparent;
+            border: 1px solid #ff69b4;
+            color: #ff69b4;
+            padding: 10px 24px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .modal-btn:hover {
+            background: #ff69b4;
+            color: #110914;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -84,22 +152,65 @@
     </div>
 
     <div id="canvas-container">
-        <!-- Beautiful plain-English center message handled dynamically by JS -->
+        <!-- Beautiful center message handled dynamically by high-speed JS timer -->
         <div class="overlay-text" id="typing-container"></div>
+    </div>
+
+    <!-- The Interactive Pop-up Window -->
+    <div class="modal-overlay" id="birthday-modal">
+        <div class="modal-box">
+            <div class="modal-title">🎉 Happy Birthday Alexa! 🎉</div>
+            <div class="modal-message">
+                Wishing you a beautiful day filled with love, laughter, and everything you’ve been hoping for. I love you so much and have the greatest years with you!
+            </div>
+            <button class="modal-btn" onclick="closeModal()">CLOSE</button>
+        </div>
     </div>
 
     <script>
         let particles = [];
-        const numParticles = 450; 
+        const numParticles = 350; 
 
-        // Typing effect configuration
-        const fullMessage = "I LOVE YOU";
+        // High-performance asynchronous typing configuration
+        const fullMessage = "I LOVE YOU ALEXA!!";
         const fullSubText = "// move your mouse to guide the math";
         let currentText = "";
         let currentSubText = "";
         let textIndex = 0;
         let subTextIndex = 0;
-        let typingSpeed = 5; // Higher number = slower typing speed
+        const typingIntervalMs = 70; 
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const typingTimer = setInterval(() => {
+                if (textIndex < fullMessage.length) {
+                    currentText += fullMessage.charAt(textIndex);
+                    textIndex++;
+                } else if (subTextIndex < fullSubText.length) {
+                    currentSubText += fullSubText.charAt(subTextIndex);
+                    subTextIndex++;
+                } else {
+                    clearInterval(typingTimer); 
+                    
+                    // Trigger the birthday pop-up window 1 second after text completes typing!
+                    setTimeout(() => {
+                        document.getElementById('birthday-modal').classList.add('show');
+                    }, 1000);
+                }
+
+                let container = document.getElementById('typing-container');
+                if (container) {
+                    if (subTextIndex < fullSubText.length) {
+                        container.innerHTML = `${currentText}<br><span class="sub-text">${currentSubText}<span class="cursor">&nbsp;</span></span>`;
+                    } else {
+                        container.innerHTML = `${currentText}<br><span class="sub-text">${currentSubText}</span>`;
+                    }
+                }
+            }, typingIntervalMs);
+        });
+
+        function closeModal() {
+            document.getElementById('birthday-modal').classList.remove('show');
+        }
 
         function setup() {
             let size = min(windowWidth, windowHeight) * 0.85;
@@ -121,29 +232,6 @@
                 p.update();
                 p.display();
             }
-
-            // Handle the interactive typing calculation frame-by-frame
-            handleTypingEffect();
-        }
-
-        function handleTypingEffect() {
-            if (frameCount % typingSpeed === 0) {
-                if (textIndex < fullMessage.length) {
-                    currentText += fullMessage.charAt(textIndex);
-                    textIndex++;
-                } else if (subTextIndex < fullSubText.length) {
-                    currentSubText += fullSubText.charAt(subTextIndex);
-                    subTextIndex++;
-                }
-            }
-
-            // Construct the updated HTML string with the terminal cursor asset
-            let container = document.getElementById('typing-container');
-            if (subTextIndex < fullSubText.length) {
-                container.innerHTML = `${currentText}<br><span class="sub-text">${currentSubText}<span class="cursor">&nbsp;</span></span>`;
-            } else {
-                container.innerHTML = `${currentText}<br><span class="sub-text">${currentSubText}</span>`;
-            }
         }
 
         class HeartParticle {
@@ -151,7 +239,6 @@
                 this.t = t;
                 this.baseScale = min(width, height) / 43;
                 
-                // Mathematical Heart Curve
                 this.baseX = 16 * pow(sin(this.t), 3);
                 this.baseY = 13 * cos(this.t) - 5 * cos(2 * this.t) - 2 * cos(3 * this.t) - cos(4 * this.t);
                 
@@ -160,7 +247,7 @@
                 
                 this.x = random(-width/2, width/2);
                 this.y = random(-height/2, height/2);
-                this.size = random(2.5, 6);
+                this.size = random(2.5, 5);
                 
                 this.col = color(random(220, 255), random(40, 100), random(140, 200), random(160, 240));
                 this.noiseOffset = random(1000);
@@ -174,19 +261,19 @@
                 let currentTargetX = this.targetX;
                 let currentTargetY = this.targetY;
 
-                if (distanceToMouse < 130) {
-                    let pushForce = map(distanceToMouse, 0, 130, 50, 0);
+                if (distanceToMouse < 110) {
+                    let pushForce = map(distanceToMouse, 0, 110, 45, 0);
                     let angle = atan2(this.y - my, this.x - mx);
                     currentTargetX += cos(angle) * pushForce;
                     currentTargetY += sin(angle) * pushForce;
                 }
 
-                let pulse = map(noise(frameCount * 0.025 + this.noiseOffset), 0, 1, -8, 8);
+                let pulse = map(noise(frameCount * 0.025 + this.noiseOffset), 0, 1, -6, 6);
                 currentTargetX += cos(this.t) * pulse;
                 currentTargetY += sin(this.t) * pulse;
 
-                this.x += (currentTargetX - this.x) * 0.07;
-                this.y += (currentTargetY - this.y) * 0.07;
+                this.x += (currentTargetX - this.x) * 0.08;
+                this.y += (currentTargetY - this.y) * 0.08;
             }
 
             display() {
@@ -198,14 +285,4 @@
 
         function windowResized() {
             let size = min(windowWidth, windowHeight) * 0.85;
-            resizeCanvas(size, size);
-            
-            for (let p of particles) {
-                p.baseScale = size / 43;
-                p.targetX = p.baseX * p.baseScale;
-                p.targetY = p.baseY * p.baseScale;
-            }
-        }
-    </script>
-</body>
-</html>
+
