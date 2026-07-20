@@ -285,4 +285,9 @@
 
         function windowResized() {
             let size = min(windowWidth, windowHeight) * 0.85;
+            resizeCanvas(size, size);
+            for (let p of particles) {
+                p.baseScale = size / 43;p.targetX = p.baseX * p.baseScale;p.targetY = p.baseY * p.baseScale;
+            }
+        }
 
