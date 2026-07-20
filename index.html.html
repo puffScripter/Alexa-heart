@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made With Code For You ❤️</title>
+    <!-- Official p5.js Library CDN - Enables the interactive canvas mathematics -->
+    <script src="https://cloudflare.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0914;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #canvas-container {
+            position: relative;
+        }
+        /* Clean, highly readable romantic center text */
+        .overlay-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            pointer-events: none;
+            letter-spacing: 3px;
+            line-height: 1.5;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
+            min-width: 300px;
+        }
+        .sub-text {
+            font-size: 11px;
+            color: #ff69b4;
+            font-weight: normal;
+            letter-spacing: 1px;
+            display: block;
+            margin-top: 8px;
+        }
+        /* Terminal cursor blink effect */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            background-color: #ff69b4;
+            animation: blink 0.8s infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        /* Aesthetic C++ header watermark in the top left corner */
+        .cpp-watermark {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 12px;
+            line-height: 1.4;
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Subtle C++ visual background context -->
+    <div class="cpp-watermark">
+        #include &lt;iostream&gt;<br>
+        #include &lt;love&gt;<br>
+        <br>
+        <span style="color: rgba(255, 105, 180, 0.25);">// Compiled with love for her</span><br>
+        int main() {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;bool together = true;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;while(together) {
+    </div>
+
+    <div id="canvas-container">
+        <!-- Beautiful plain-English center message handled dynamically by JS -->
+        <div class="overlay-text" id="typing-container"></div>
+    </div>
+
+    <script>
+        let particles = [];
+        const numParticles = 450; 
+
+        // Typing effect configuration
+        const fullMessage = "I LOVE YOU";
+        const fullSubText = "// move your mouse to guide the math";
+        let currentText = "";
+        let currentSubText = "";
+        let textIndex = 0;
+        let subTextIndex = 0;
+        let typingSpeed = 5; // Higher number = slower typing speed
+
+        function setup() {
+            let size = min(windowWidth, windowHeight) * 0.85;
+            let canvas = createCanvas(size, size);
+            canvas.parent('canvas-container');
+            
+            for (let i = 0; i < numParticles; i++) {
+                let t = map(i, 0, numParticles, 0, TWO_PI);
+                particles.push(new HeartParticle(t));
+            }
+        }
+
+        function draw() {
+            background(11, 9, 20, 35); 
+            translate(width / 2, height / 2);
+            scale(1, -1); 
+            
+            for (let p of particles) {
+                p.update();
+                p.display();
+            }
+
+            // Handle the interactive typing calculation frame-by-frame
+            handleTypingEffect();
+        }
+
+        function handleTypingEffect() {
+            if (frameCount % typingSpeed === 0) {
+                if (textIndex < fullMessage.length) {
+                    currentText += fullMessage.charAt(textIndex);
+                    textIndex++;
+                } else if (subTextIndex < fullSubText.length) {
+                    currentSubText += fullSubText.charAt(subTextIndex);
+                    subTextIndex++;
+                }
+            }
+
+            // Construct the updated HTML string with the terminal cursor asset
+            let container = document.getElementById('typing-container');
+            if (subTextIndex < fullSubText.length) {
+                container.innerHTML = `${currentText}<br><span class="sub-text">${currentSubText}<span class="cursor">&nbsp;</span></span>`;
+            } else {
+                container.innerHTML = `${currentText}<br><span class="sub-text">${currentSubText}</span>`;
+            }
+        }
+
+        class HeartParticle {
+            constructor(t) {
+                this.t = t;
+                this.baseScale = min(width, height) / 43;
+                
+                // Mathematical Heart Curve
+                this.baseX = 16 * pow(sin(this.t), 3);
+                this.baseY = 13 * cos(this.t) - 5 * cos(2 * this.t) - 2 * cos(3 * this.t) - cos(4 * this.t);
+                
+                this.targetX = this.baseX * this.baseScale;
+                this.targetY = this.baseY * this.baseScale;
+                
+                this.x = random(-width/2, width/2);
+                this.y = random(-height/2, height/2);
+                this.size = random(2.5, 6);
+                
+                this.col = color(random(220, 255), random(40, 100), random(140, 200), random(160, 240));
+                this.noiseOffset = random(1000);
+            }
+
+            update() {
+                let mx = mouseX - width / 2;
+                let my = -(mouseY - height / 2);
+                let distanceToMouse = dist(this.x, this.y, mx, my);
+                
+                let currentTargetX = this.targetX;
+                let currentTargetY = this.targetY;
+
+                if (distanceToMouse < 130) {
+                    let pushForce = map(distanceToMouse, 0, 130, 50, 0);
+                    let angle = atan2(this.y - my, this.x - mx);
+                    currentTargetX += cos(angle) * pushForce;
+                    currentTargetY += sin(angle) * pushForce;
+                }
+
+                let pulse = map(noise(frameCount * 0.025 + this.noiseOffset), 0, 1, -8, 8);
+                currentTargetX += cos(this.t) * pulse;
+                currentTargetY += sin(this.t) * pulse;
+
+                this.x += (currentTargetX - this.x) * 0.07;
+                this.y += (currentTargetY - this.y) * 0.07;
+            }
+
+            display() {
+                noStroke();
+                fill(this.col);
+                ellipse(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function windowResized() {
+            let size = min(windowWidth, windowHeight) * 0.85;
+            resizeCanvas(size, size);
+            
+            for (let p of particles) {
+                p.baseScale = size / 43;
+                p.targetX = p.baseX * p.baseScale;
+                p.targetY = p.baseY * p.baseScale;
+            }
+        }
+    </script>
+</body>
+</html>
